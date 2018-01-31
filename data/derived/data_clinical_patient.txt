@@ -1,7 +1,3 @@
-#Patient Identifier	Sex	Primary Race	Ethnicity Category	Center
-#The unique patient identifier for the GENIE project that conforms to the following the convention: GENIE-CENTER-1234. The identifier has three components separated by hyphens. The 1st component is the string, GENIE; the second component is the Center abbreviation: DFCI, GRCC, JHH, MSK, NKI, UHN, MDA, VICC. The third component is a Center assigned unique identifier for the patient. Each institution must be able to use this ID to link back to the patients' MRN; however, do not submit the MRN as a part of the GENIE_ID.	The sex code for the patient; this data element maps to the NAACCR v16 #220.	The primary race recorded for the patient; this data element maps to the NAACCR v16 #160. For institutions collecting more than one race category, this should be the primary race. For institutions not collecting race, submit a null in this category for all patients.	Indication of Spanish/Hispanic origin of the patient; this data element maps to the NAACCR v16 #190. For institutions not collecting Spanish/Hispanic origin, submit a null in this category for all patients.	Center of sequencing
-#STRING	STRING	STRING	STRING	STRING
-#1	1	1	1	1
 PATIENT_ID	SEX	PRIMARY_RACE	ETHNICITY	CENTER
 GENIE-VICC-101416	Female	White	Non-Spanish/non-Hispanic	VICC
 GENIE-VICC-102225	Female	White	Non-Spanish/non-Hispanic	VICC
