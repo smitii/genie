@@ -1,0 +1,12 @@
+-- Jan 31
+I need to map all non-numeric features to discrete variables.
+cut -f 1,2,3,4 data_clinical_patient.txt > data_clinical_patient.txt
+
+-- Jan 30
+sed '1d' data_clinical_patient > data_clinical_patient # a few times 
+
+sed '1d' data_clinical_sample > data_clinical_sample # a few times
+
+
+
+
