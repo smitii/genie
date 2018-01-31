@@ -1,0 +1,2 @@
+sed '1d' data_clinical_patient > data_clinical_patient # a few times
+sed '1d' data_clinical_sample > data_clinical_sample # a few times
