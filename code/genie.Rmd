@@ -38,11 +38,15 @@ head(sample)
 c <- cancer
 # sort(unique(df$SEX))
 c$SEX <- recode(c$SEX, Female = 0, Male = 1, Unknown = 2)
-c$PRIMARY_RACE <- recode(c$PRIMARY_RACE, Asian = 0, Black = 1, `Native American` = 2, Undefined = 3, Unknown = 4, White = 5)
-c$ETHNICITY <- recode(c$ETHNICITY, `Non-Spanish/non-Hispanic` = 0, `Spanish/Hispanic` = 1, Unknown = 2)
+c$PRIMARY_RACE <- recode(c$PRIMARY_RACE, Asian = 0, Black = 1, "Native American" = 2, Other = 3, Undefined = 4, Unknown = 5, White = 6)
+c$ETHNICITY <- recode(c$ETHNICITY, "Non-Spanish/non-Hispanic" = 0, "Spanish/Hispanic" = 1, Unknown = 2)
 head(c)
 
 s <- sample
 s <- s[, c(-3,-6)]
 s$SAMPLE_TYPE <- recode(s$SAMPLE_TYPE, Metastasis = 0, Other = 1, Primary = 2, Unspecified = 3)
+head(s)
+
+temp <- merge(c, s, by="PATIENT_ID")
+write.table(temp, "C:/Users/kauls15/Desktop/github/genie/data/derived/data_clinical_patient_and_sample.txt", sep="\t")
 ```
