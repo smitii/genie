@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ```{r, include = FALSE, echo = FALSE}
 library(dplyr)
+library(ISLR)
 ```
 
 
@@ -32,7 +33,7 @@ sample$AGE_AT_SEQ_REPORT[sample$AGE_AT_SEQ_REPORT == '>89'] <- 90
 head(sample)
 ```
 
-## Map Data to Discrete Variables
+## Map (most) Data to Discrete Variables and Merge Datasets
 
 ```{r, eval = FALSE, tidy = TRUE}
 c <- cancer
@@ -48,5 +49,61 @@ s$SAMPLE_TYPE <- recode(s$SAMPLE_TYPE, Metastasis = 0, Other = 1, Primary = 2, U
 head(s)
 
 temp <- merge(c, s, by="PATIENT_ID")
+temp[,8] = temp[6]
+temp <- temp[,-6]
+names(temp) <- c("patient_id", "sex", "primary_race", "ethnicity","age", "cancer_type", "metastasis")
 write.table(temp, "C:/Users/kauls15/Desktop/github/genie/data/derived/data_clinical_patient_and_sample.txt", sep="\t")
+head(temp)
+```
+
+## Begin Analysis
+
+### Only Clinical Data
+```{r, eval = FALSE, tidy = TRUE}
+d <- temp
+```
+
+#### Exploratory Data Analysis
+
+#### Multivariate Linear Regression
+```{r, eval = FALSE, tidy = TRUE}
+m1 = lm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = d)
+summary(m1)
+mse <- function(sm) mean(sm$residuals^2)
+mse(m1)
+```
+
+#### Multivariate Logistic Regression
+
+```{r, eval = FALSE, tidy = TRUE}
+set.seed(125)
+cv_errors <- rep(0, 10)
+
+df <- d[sample(nrow(d)),]
+folds <- cut(seq(1, nrow(df)), breaks = 10, labels = FALSE)
+ 
+for (i in 1:10) {
+  # segment data
+  test_indexes <- which(folds == i, arr.ind = TRUE)
+  test <- df[test_indexes, ]
+  train <- df[-test_indexes, ]
+  
+  # method 1, 2, 3
+  m1 = glm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train, family = binomial)
+  
+  fold_errors <- rep(0, nrow(test))
+  
+  test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
+  for (j in 1:nrow(test)) {
+    # fold_errors[j] <- (predict(m1, test[j,])) - test$metastasis[j]
+    predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
+    fold_errors[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
+
+  }
+
+  cv_errors[i] <- mean(fold_errors ^ 2)
+}
+
+mse_m1 <- mean(cv_errors)
+cat("test mse: ", mse_m1)
 ```
