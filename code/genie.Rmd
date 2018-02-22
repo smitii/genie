@@ -45,7 +45,45 @@ head(c)
 
 s <- sample
 s <- s[, c(-3,-6)]
-s$SAMPLE_TYPE <- recode(s$SAMPLE_TYPE, Metastasis = 0, Other = 1, Primary = 2, Unspecified = 3)
+s$SAMPLE_TYPE <- recode(s$SAMPLE_TYPE, Metastasis = 0, Other = 2, Primary = 1, Unspecified = 3)
+s$CANCER_TYPE <- recode(s$CANCER_TYPE, "Adenocarcinoma In Situ" = 0, 
+                        "Adrenocortical Carcinoma" = 1, "Ampullary Carcinoma" = 2,
+                        "Anal Cancer" = 3, "Appendiceal Cancer" = 4,
+                        "Bladder Cancer" = 5, "Bladder/Urinary Tract Cancer, NOS" = 6,
+                        "Blastic Plasmacytoid Dendritic Cell Neoplasm" = 7, "Blood Cancer, NOS" = 8,
+                        "Bone Cancer" = 9, "Bone Cancer, NOS" = 10, 
+                        "Bowel Cancer, NOS" = 11, "Breast Cancer" = 12, 
+                        "Breast Sarcoma"= 13, "Cancer of Unknown Primary" = 14, 
+                        "Cervical Cancer" = 15, "Choroid Plexus Tumor" = 16, 
+                        "CNS Cancer" = 17, "CNS/Brain Cancer, NOS" = 18, 
+                        "Colorectal Cancer" = 19, "Embryonal Tumor" = 20, 
+                        "Endometrial Cancer" = 21, "Esophageal/Stomach Cancer, NOS" = 22, 
+                        "Esophagogastric Cancer" = 23, "Gastrointestinal Neuroendocrine Tumor" = 24,
+                        "Gastrointestinal Stromal Tumor" = 25, "Germ Cell Tumor" = 26, 
+                        "Gestational Trophoblastic Disease" = 27, "Glioma" = 28, 
+                        "Head and Neck Cancer" = 29, "Head and Neck Cancer, NOS" = 30, 
+                        "Hepatobiliary Cancer" = 31, "Histiocytic Disorder" = 32, 
+                        "Histiocytosis" = 33, "Hodgkin Lymphoma" = 34,
+                        "Leukemia" = 35, "Lung Cancer, NOS" = 36, 
+                        "Mastocytosis" = 37, "Melanoma" = 38,
+                        "Mesothelioma" = 39, "Miscellaneous Brain Tumor" = 40,
+                        "Miscellaneous Neuroepithelial Tumor" = 41, "Multiple Myeloma" = 42,
+                        "Myelodysplasia" = 43, "Myeloproliferative Neoplasm" = 44,
+                        "Nerve Sheath Tumor" = 45, "Non-Hodgkin Lymphoma" = 46, 
+                        "Non-Small Cell Lung Cancer" = 47, "Other Cancer, NOS"= 48,
+                        "Ovarian Cancer" = 49, "Ovarian/Fallopian Tube Cancer, NOS" = 50, 
+                        "Pancreatic Cancer" = 51, "Pancreatic Cancer, NOS" = 52, 
+                        "Penile Cancer" = 53, "Pheochromocytoma" = 54, 
+                        "Pineal Tumor" = 55, "Prostate Cancer" = 56,
+                        "Renal Cell Carcinoma" = 57, "Retinoblastoma" = 58,
+                        "Salivary Gland Cancer" = 59, "Sellar Tumor" = 60,
+                        "Sex Cord Stromal Tumor" = 61, "Skin Cancer, Non-Melanoma" = 62, 
+                        "Skin Cancer, NOS" = 63, "Small Bowel Cancer" = 64, 
+                        "Small Cell Lung Cancer" = 65, "Soft Tissue Sarcoma" = 66,
+                        "Testicular Cancer, NOS" = 67, "Thymic Tumor" = 68,
+                        "Thyroid Cancer" = 69, "Thyroid Cancer, NOS" = 70,
+                        "Uterine Cancer, NOS" = 71, "Uterine Sarcoma" = 72, 
+                        "Vaginal Cancer" = 73, "Vulvar/Vaginal Cancer, NOS" = 74, "Wilms Tumor" = 75)
 head(s)
 
 temp <- merge(c, s, by="PATIENT_ID")
@@ -61,16 +99,21 @@ head(temp)
 ### Only Clinical Data
 ```{r, eval = FALSE, tidy = TRUE}
 d <- temp
+head(d)
+t <- subset(d, metastasis != 2)
+t <- subset(t, metastasis != 3)
+head(t)
+d <- t
 ```
 
 #### Exploratory Data Analysis
 
 #### Multivariate Linear Regression
 ```{r, eval = FALSE, tidy = TRUE}
-m1 = lm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = d)
+m1 = glm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = d)
 summary(m1)
 mse <- function(sm) mean(sm$residuals^2)
-mse(m1)
+mse(m1) # 0.008522365
 ```
 
 #### Multivariate Logistic Regression
