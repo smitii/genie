@@ -116,9 +116,35 @@ mse <- function(sm) mean(sm$residuals^2)
 mse(m1) # 0.008522365
 ```
 
-#### Multivariate Logistic Regression
+#### Multivariate Logistic Regression with 10-fold Cross Validation
 
 ```{r, eval = FALSE, tidy = TRUE}
+# library(caret)
+set.seed(125)
+trainIndex <- createDataPartition(d$metastasis, p = .75, list = FALSE, times = 1)
+
+train <- d[trainIndex, ]
+test  <- d[-trainIndex, ]
+
+# m1 = glm.fit(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train, family = binomial)
+m1 = glm(train$metastasis ~ train$sex + train$primary_race + train$ethnicity + train$age + train$cancer_type, family = binomial)
+
+fold_errors <- rep(0, nrow(test))
+# test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
+for (j in 1:nrow(test)) {
+  # fold_errors[j] <- (predict(m1, test[j,])) - test$metastasis[j]
+  predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
+  fold_errors[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[j]),type="resp") - test$metastasis[j]
+}
+
+error <- mean(fold_errors ^ 2)
+mse_m1 <- mean(error)
+cat("test mse: ", mse_m1) # 0.02101336
+```
+
+#### Multivariate Logistic Regression with 10-fold Cross Validation
+
+```{r, eval = FALSE, tidy = TRUE, eval = FALSE}
 set.seed(125)
 cv_errors <- rep(0, 10)
 
@@ -132,15 +158,16 @@ for (i in 1:10) {
   train <- df[-test_indexes, ]
   
   # method 1, 2, 3
-  m1 = glm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train, family = binomial)
+  # m1 = glm.fit(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train, family = binomial)
+  m1 = glm(train$metastasis ~ train$sex + train$primary_race + train$ethnicity + train$age + train$cancer_type, family = binomial)
   
+
   fold_errors <- rep(0, nrow(test))
   
-  test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
+  # test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
   for (j in 1:nrow(test)) {
     # fold_errors[j] <- (predict(m1, test[j,])) - test$metastasis[j]
-    predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
-    fold_errors[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
+    fold_errors[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[j]),type="resp") - test$metastasis[j]
 
   }
 
@@ -148,5 +175,5 @@ for (i in 1:10) {
 }
 
 mse_m1 <- mean(cv_errors)
-cat("test mse: ", mse_m1)
+cat("test mse: ", mse_m1) # 0.02253641
 ```
