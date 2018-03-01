@@ -94,9 +94,9 @@ write.table(temp, "C:/Users/kauls15/Desktop/github/genie/data/derived/data_clini
 head(temp)
 ```
 
-## Begin Analysis
+## Only Clinical Data
 
-### Only Clinical Data
+### Create dataframe
 ```{r, eval = FALSE, tidy = TRUE}
 d <- temp
 head(d)
@@ -106,9 +106,9 @@ head(t)
 d <- t
 ```
 
-#### Exploratory Data Analysis
+### Exploratory Data Analysis
 
-#### Multivariate Linear Regression
+### Multivariate Linear Regression
 ```{r, eval = FALSE, tidy = TRUE}
 m1 = glm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = d)
 summary(m1)
@@ -116,7 +116,7 @@ mse <- function(sm) mean(sm$residuals^2)
 mse(m1) # 0.008522365
 ```
 
-#### Multivariate Logistic Regression with 10-fold Cross Validation
+#### Multivariate Logistic Regression
 
 ```{r, eval = FALSE, tidy = TRUE}
 # library(caret)
@@ -139,10 +139,10 @@ for (j in 1:nrow(test)) {
 
 error <- mean(fold_errors ^ 2)
 mse_m1 <- mean(error)
-cat("test mse: ", mse_m1) # 0.02101336
+cat("test mse: ", mse_m1) # 0.02379561
 ```
 
-#### Multivariate Logistic Regression with 10-fold Cross Validation
+### Multivariate Logistic Regression with 10-fold Cross Validation
 
 ```{r, eval = FALSE, tidy = TRUE, eval = FALSE}
 set.seed(125)
