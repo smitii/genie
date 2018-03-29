@@ -90,7 +90,7 @@ temp <- merge(c, s, by="PATIENT_ID")
 temp[,8] = temp[6]
 temp <- temp[,-6]
 names(temp) <- c("patient_id", "sex", "primary_race", "ethnicity","age", "cancer_type", "metastasis")
-write.table(temp, "C:/Users/kauls15/Desktop/github/genie/data/derived/data_clinical_patient_and_sample.txt", sep="\t")
+# write.table(temp, "C:/Users/kauls15/Desktop/github/genie/data/derived/data_clinical_patient_and_sample.txt", sep="\t")
 head(temp)
 ```
 
@@ -99,6 +99,7 @@ head(temp)
 ### Create dataframe
 ```{r, eval = FALSE, tidy = TRUE}
 d <- temp
+d$age <- as.numeric(d$age)
 head(d)
 t <- subset(d, metastasis != 2)
 t <- subset(t, metastasis != 3)
@@ -130,16 +131,20 @@ test  <- d[-trainIndex, ]
 m1 = glm(train$metastasis ~ train$sex + train$primary_race + train$ethnicity + train$age + train$cancer_type, family = binomial)
 
 fold_errors <- rep(0, nrow(test))
+predicted <- rep(0, nrow(test))
 # test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
 for (j in 1:nrow(test)) {
   # fold_errors[j] <- (predict(m1, test[j,])) - test$metastasis[j]
   predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
-  fold_errors[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[j]),type="resp") - test$metastasis[j]
+  predicted[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[j]),type="resp")
+  fold_errors[j] <- predicted..[j] - test$metastasis[j]
 }
 
 error <- mean(fold_errors ^ 2)
 mse_m1 <- mean(error)
 cat("test mse: ", mse_m1) # 0.02379561
+library(caret)
+confusionMatrix(test$metastasis, predicted)
 ```
 
 ### Multivariate Logistic Regression with 10-fold Cross Validation
@@ -177,3 +182,20 @@ for (i in 1:10) {
 mse_m1 <- mean(cv_errors)
 cat("test mse: ", mse_m1) # 0.02253641
 ```
+
+### Artificial Neural Network
+```{r}
+library(neuralnet); library(caret)
+set.seed(125)
+temp <- d[, -1]
+trainIndex <- createDataPartition(d$metastasis, p = .75, list = FALSE, times = 1)
+
+train <- temp[trainIndex, ]
+test  <- temp[-trainIndex, ]
+
+train$metastasis <- t(temp$metastasis)
+n <- names(train)
+f <- as.formula(paste("metastasis ~", paste(n[!n %in% "metastasis"], collapse = " + ")))
+nn <- neuralnet(f, data = train, hidden = 1, linear.output = T)
+```
+

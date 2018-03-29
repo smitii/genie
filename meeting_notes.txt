@@ -1,0 +1,12 @@
+What is the percentage of the correct answer --> confusion matrix
+-- smallest amount of false
+
+ridge regression
+
+Dr T, other / unspecified metastasis type
+
+stratified sampling
+
+which cancers have the highest likelihood of metastasis
+
+percentage metastasized vs. cancer type graph
