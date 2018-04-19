@@ -10,3 +10,15 @@ stratified sampling
 which cancers have the highest likelihood of metastasis
 
 percentage metastasized vs. cancer type graph
+
+_______________________________________________________________________________
+
+pred1     0     1
+    1 10775 17639
+
+
+
+
+pred1     0     1
+    0 10277 16228
+    1   498  1411
