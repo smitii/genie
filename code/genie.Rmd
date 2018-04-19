@@ -15,12 +15,13 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r, include = FALSE, echo = FALSE}
 library(dplyr)
 library(ISLR)
+library(car)
 ```
 
 
 ## Load the Data
 
-```{r, eval = FALSE, tidy = TRUE}
+```{r, tidy = TRUE}
 cancer <- read.csv("C:/Users/kauls15/Desktop/github/genie/data/derived/data_clinical_patient.txt", stringsAsFactors = FALSE, sep = "\t")
 cancer <- cancer[-c(1,2,3),]
 colnames(cancer) = cancer[1, ] # the first row will be the header
@@ -35,7 +36,7 @@ head(sample)
 
 ## Map (most) Data to Discrete Variables and Merge Datasets
 
-```{r, eval = FALSE, tidy = TRUE}
+```{r, tidy = TRUE}
 c <- cancer
 # sort(unique(df$SEX))
 c$SEX <- recode(c$SEX, Female = 0, Male = 1, Unknown = 2)
@@ -97,7 +98,7 @@ head(temp)
 ## Only Clinical Data
 
 ### Create dataframe
-```{r, eval = FALSE, tidy = TRUE}
+```{r, tidy = TRUE}
 d <- temp
 d$age <- as.numeric(d$age)
 head(d)
@@ -110,7 +111,7 @@ d <- t
 ### Exploratory Data Analysis
 
 ### Multivariate Linear Regression
-```{r, eval = FALSE, tidy = TRUE}
+```{r, tidy = TRUE}
 m1 = glm(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = d)
 summary(m1)
 mse <- function(sm) mean(sm$residuals^2)
@@ -119,37 +120,68 @@ mse(m1) # 0.008522365
 
 #### Multivariate Logistic Regression
 
-```{r, eval = FALSE, tidy = TRUE}
-# library(caret)
+```{r, tidy = TRUE}
+library(caret)
 set.seed(125)
 trainIndex <- createDataPartition(d$metastasis, p = .75, list = FALSE, times = 1)
-
 train <- d[trainIndex, ]
 test  <- d[-trainIndex, ]
 
-# m1 = glm.fit(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train, family = binomial)
 m1 = glm(train$metastasis ~ train$sex + train$primary_race + train$ethnicity + train$age + train$cancer_type, family = binomial)
 
 fold_errors <- rep(0, nrow(test))
 predicted <- rep(0, nrow(test))
-# test <- test[-which(test$cancer_type == "Adenocarcinoma In Situ"),]
+
 for (j in 1:nrow(test)) {
-  # fold_errors[j] <- (predict(m1, test[j,])) - test$metastasis[j]
-  predict.glm(m1, data.frame(metastasis=test$metastasis[5]),type="resp")
   predicted[j] <- predict.glm(m1, data.frame(metastasis=test$metastasis[j]),type="resp")
-  fold_errors[j] <- predicted..[j] - test$metastasis[j]
+  fold_errors[j] <- predicted[j] - test$metastasis[j]
 }
 
 error <- mean(fold_errors ^ 2)
 mse_m1 <- mean(error)
 cat("test mse: ", mse_m1) # 0.02379561
-library(caret)
-confusionMatrix(test$metastasis, predicted)
+
+confusion_matrix <- as.data.frame(table(predicted, test$metastasis))
+
+ggplot(data = confusion_matrix,
+       mapping = aes(x = predicted,
+                     y = Var2)) +
+  geom_tile(aes(fill = Freq)) +
+  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+  scale_fill_gradient(low = "blue",
+                      high = "red",
+                      trans = "log") 
+
+TClass <- factor(c(0, 0, 1, 1))
+PClass <- factor(c(0, 1, 0, 1))
+Y      <- c(2816, 248, 34, 235)
+df <- data.frame(TClass, PClass, Y)
+
+library(ggplot2)
+ggplot(data =  df, mapping = aes(x = TClass, y = PClass)) +
+  geom_tile(aes(fill = Y), colour = "white") +
+  geom_text(aes(label = sprintf("%1.0f", Y)), vjust = 1) +
+  scale_fill_gradient(low = "blue", high = "red") +
+  theme_bw() + theme(legend.position = "none")
+```
+
+```{r}
+library(ggplot2)
+confusion_matrix <- as.data.frame(table(predicted, test$metastasis))
+
+ggplot(data = confusion_matrix,
+       mapping = aes(x = predicted_class,
+                     y = Var2)) +
+  geom_tile(aes(fill = Freq)) +
+  geom_text(aes(label = sprintf("%1.0f", Freq)), vjust = 1) +
+  scale_fill_gradient(low = "blue",
+                      high = "red",
+                      trans = "log") 
 ```
 
 ### Multivariate Logistic Regression with 10-fold Cross Validation
 
-```{r, eval = FALSE, tidy = TRUE, eval = FALSE}
+```{r, tidy = TRUE}
 set.seed(125)
 cv_errors <- rep(0, 10)
 
