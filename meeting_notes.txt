@@ -16,9 +16,15 @@ _______________________________________________________________________________
 pred1     0     1
     1 10775 17639
 
-
-
-
 pred1     0     1
     0 10277 16228
     1   498  1411
+
+pred1    0    1
+    0 2152 1367
+    1 8620 9405
+
+- still predicting mostly true
+- use a 100 random seeds to calculate the avg confusion matrix values
+- std dev across each
+- cv

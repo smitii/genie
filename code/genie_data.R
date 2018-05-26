@@ -76,3 +76,6 @@ t <- subset(t, metastasis != 3)
 t <- subset(t, sex != 2)
 head(t)
 d <- t
+write.table(d, "C:/Users/kauls15/Desktop/github/genie/data/derived/d.txt", sep="\t")
+write.csv(d, "C:/Users/kauls15/Desktop/github/genie/data/derived/d.csv")
+

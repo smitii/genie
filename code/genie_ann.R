@@ -19,20 +19,27 @@ scaled <- scaled[!row_has_na,]
 
 train_nn <- scaled[trainIndex, ]
 test_nn  <- scaled[-trainIndex, ]
+train_nn_0 <- subset(train_nn, metastasis == 0)
+train_nn_1 <- subset(train_nn, metastasis == 1)
+pick <- train_nn_1[sample(nrow(train_nn_1), 10772), ]
+pick_0 <- train_nn_0[sample(nrow(train_nn_0), 6871), ]
+
+train_nn <- rbind(train_nn, pick_0)
+table(train_nn$metastasis)
 
 nn = neuralnet(metastasis ~ sex + primary_race + ethnicity + age + cancer_type, data = train_nn, 
-               hidden = 2, act.fct = "logistic", err.fct = "sse", linear.output = F, stepmax = 1e6)
+               hidden = 2, act.fct = "logistic", err.fct = "sse", linear.output = F, stepmax = 1000000)
 plot(nn)
 predict_train_nn <- compute(nn, train_nn[, -6])
 head(predict_train_nn$net.result)
 p1 <- predict_train_nn$net.result
-pred1 <- ifelse(p1 > 0.65, 1, 0)
+pred1 <- ifelse(p1 > 0.5, 1, 0)
 tab1 <- table(pred1, train_nn$metastasis)
 tab1
 
 pred_class <- factor(c(0, 1, 0, 1))
 true_class <- factor(c(1,1,0,0))
-Y      <- c(10277, 16228, 498, 1411)
+Y      <- c(8620 , 9405, 2152, 1367)
 df <- data.frame(pred_class, true_class, Y)
 
 library(ggplot2)
